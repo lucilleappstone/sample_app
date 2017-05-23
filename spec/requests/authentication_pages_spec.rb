@@ -104,6 +104,28 @@ describe "Authentication" do
           before { visit users_path }
           it { should have_title('Sign in') }
         end
+
+        describe "visiting the following page" do
+          before { visit following_user_path(user) }
+          it { should have_title('Sign in') }
+        end
+
+        describe "visiting the followers page" do
+          before { visit followers_user_path(user) }
+          it { should have_title('Sign in') }
+        end
+      end
+
+      describe "in the Relationships controller" do
+        describe "submitting to the create action", type: :request do
+          before { post relationships_path }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+
+        describe "submitting the destroy action", type: :request do
+          before { delete relationship_path(1) }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
       end
     end
 
@@ -148,6 +170,12 @@ describe "Authentication" do
       describe "cannot access #create action", type: :request do
         before { post users_path(user) }
         specify { expect(response).to redirect_to(root_path) }
+      end
+
+      describe "cannot delete other user's posts", type: :request do
+        let(:other_user) { FactoryGirl.create(:user) }
+        before { visit user_path(other_user) }
+        it { should_not have_link('delete') }
       end
     end
 
