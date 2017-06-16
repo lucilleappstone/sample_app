@@ -23,8 +23,6 @@ describe User do
   it { should respond_to(:followed_users) }
   it { should respond_to(:reverse_relationships) }
   it { should respond_to(:followers) }
-  #it { should respond_to(:following?) }
-  #it { should respond_to(:follow!) }
 
   it { should be_valid }
   it { should_not be_admin }
@@ -130,8 +128,7 @@ describe User do
 
   describe "remember token" do
     before { @user.save }
-    # its(:remember_token) { should_not be_blank }
-    it { expect(@user.remember_token).not_to be_blank }
+    its(:remember_token) { should_not be_blank }
   end
 
   describe "micropost associations" do
@@ -199,6 +196,16 @@ describe User do
 
       it { should_not be_following(other_user) }
       its(:followed_users) { should_not include(other_user) }
+    end
+
+    it "should destroy associated relationships" do
+      relationships = @user.relationships.to_a
+      @user.destroy
+      # relationships.should_not be_empty
+      expect(relationships).not_to be_empty
+      relationships.each do |relationship|
+        expect(Relationship.where(id: relationship.id)).to be_empty
+      end
     end
   end
 end
